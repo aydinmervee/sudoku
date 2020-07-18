@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  Oyunlarım
+{% endblock title %}
+
+{% block ekstra_style %}
+  <style>
+    .middle {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    {#background: red;#} justify-content: center;
+    }
+
+    .middle_table {
+      margin-top: auto;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    {% if not games %}
+      <div class="row middle">
+        <img src="{% static "images/empty.svg" %}" alt="Empty" width="500px">
+        <h3>Henüz kaydedilmiş bir oyununuz bulunmamaktadır.</h3>
+      </div>
+    {% else %}
+
+      <table class="table" style="margin-top: 20px">
+        <thead>
+        <tr>
+          <th>Oyun</th>
+          <th>Oluşturulma Tarihi</th>
+          <th>Son Güncellenme Tarihi</th>
+          <th>Boyut</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for game in games %}
+          <tr>
+            <td>
+              <a href="{% url 'oyunum' id=game.id %}">
+                {{ game }}
+              </a>
+            </td>
+            <td>{{ game.created_at }}</td>
+            <td>{{ game.updated_at }}</td>
+            <td>{{ game.size }} x {{ game.size }}</td>
+            <td>
+              <a href="{% url 'oyunu_sil' id=game.id %}" style="color: red">
+                X
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+{% endblock content %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  Anasayfa
+{% endblock title %}
+
+{% block content %}
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-4">
+        SUDOKU NASIL OYNANIR?
+      </h1>
+      <div class="middle">
+        <img src="{% static "images/home.svg" %}" alt="Empty" width="400px">
+      </div>
+      <p class="lead">
+        Bir zeka oyunu türüdür.
+      </p>
+      <p class="lead">
+        9x9 boyutlarında bir diyagramda çözülen ve her satır, her sütun ve her 3x3'lük karede 1'den 9'a rakamların
+        birer kez yer alarak doldurulması ile oynanan bir oyundur.
+
+      </p>
+      <p class="lead">
+        6x6 boyutlarında bir diyagramda çözülen ve her satır, her sütun ve her 2x3'lük dikdörtgenlerde 1'den 6'ya
+        rakamların veya şekillerin birer kez yer alarak doldurulması ile oynanan bir oyundur.
+
+      </p>
+      <p class="lead">
+        4x4 boyutlarında bir diyagramda çözülen ve her satır, her sütun ve her 2x2'lik karede 1'den 4'e rakamların
+        veya şekillerin birer kez yer alarak doldurulması ile oynanan bir oyundur.
+
+      </p>
+      <p class="lead">
+        Hadi başlayalım&#128525
+      </p>
+    </div>
+  </div>
+{% endblock content %}

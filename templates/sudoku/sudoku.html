@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ size }}x{{ size }} Sudoku
+{% endblock title %}
+
+{% block ekstra_style %}
+  <style type="text/css" media="print">
+    .no-print {
+      display: none;
+    }
+
+    .print {
+      display: table !important
+    }
+  </style>
+  <style type="text/css">
+    a.zorluk_buton {
+      width: 120px;
+    }
+
+    .kolay {
+      background-color: #c0c0c0
+    }
+
+    .orta {
+      background-color: #808080
+    }
+
+    .zor {
+      background-color: #5c5c5c
+    }
+
+    .kontrolet {
+      background-color: #ffee70
+    }
+
+    .kaydet {
+      background-color: #b57edc
+    }
+
+    .temizle {
+      background-color: #70ffed
+    }
+
+    .çözüm {
+      background-color: #ff9966
+    }
+
+    button {
+      width: 130px;
+    }
+
+    html, body {
+      background-color: #FAFAFA
+    }
+
+    table {
+      border: 2px solid #000000;
+    }
+
+    td {
+      border: 1px solid #000000;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    input.input_cell {
+      color: #000000;
+      padding: 0;
+      border: 0;
+      text-align: center;
+      width: 55px;
+      height: 48px;
+      font-size: 24px;
+      background-color: #FFFFFF;
+      outline: none;
+    }
+
+    input.input_cell:disabled {
+      background-color: #EEEEEE;
+    }
+
+    {% if size == 9 %}
+      tr:nth-child(3n) {
+        border-bottom: 4px solid #000000;
+      }
+
+      tr:nth-child(3n+1) {
+        border-top: 4px solid #000000;
+      }
+
+      td:nth-child(3n) {
+        border-right: 4px solid #000000;
+      }
+
+      td:nth-child(3n+1) {
+        border-left: 4px solid #000000;
+      }
+
+    {% elif size == 6 %}
+      tr:nth-child(2n) {
+        border-bottom: 4px solid #000000;
+      }
+
+      tr:nth-child(2n+1) {
+        border-top: 4px solid #000000;
+      }
+
+      td:nth-child(3n) {
+        border-right: 4px solid #000000;
+      }
+
+      td:nth-child(3n+1) {
+        border-left: 4px solid #000000;
+      }
+
+
+    {% elif size == 4 %}
+      tr:nth-child(2n) {
+        border-bottom: 4px solid #000000;
+      }
+
+      tr:nth-child(2n+1) {
+        border-top: 4px solid #000000;
+      }
+
+      td:nth-child(2n) {
+        border-right: 4px solid #000000;
+      }
+
+      td:nth-child(2n+1) {
+        border-left: 4px solid #000000;
+      }
+    {% endif %}
+  </style>
+  <style>
+    .middle {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    {#background: red;#} justify-content: center;
+    }
+
+    .middle_table {
+      margin-top: auto;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="middle" style="margin-top: 10px">
+    <div class="text-center">
+      {% if not oyunlarim %}
+        <br>
+        <a href="?size={{ size }}&level=kolay" class="btn kolay zorluk_buton no-print">Kolay</a>
+        <a href="?size={{ size }}&level=orta" class="btn orta zorluk_buton no-print">Orta</a>
+        <a href="?size={{ size }}&level=zor" class="btn zor zorluk_buton  no-print">Zor</a>
+      {% endif %}
+      <button type="button" name="button" onclick="sudoku_yazdır()" class="btn zor zorluk_buton  no-print">Yazdır
+      </button>
+    </div>
+    <br>
+    <table id="grid" class="sudoku middle_table">
+      {% for array in sudoku %}
+        <tr>
+          {% for item in array %}
+            <td><input class="input_cell" {% if item %} disabled {% endif %} {% if not sekilli_mi %}
+                       type="number"  {% endif %} value={{ item }}></td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </table>
+    <br>
+    <table id="solution" style="display: none" class="sudoku middle_table print">
+      {% for array in solution %}
+        <tr>
+          {% for item in array %}
+            <td><input class="input_cell" {% if item %} disabled {% endif %} {% if not sekilli_mi %}
+                       type="number"  {% endif %} value={{ item }}></td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </table>
+    <div class="text-center">
+      <button type="button" onclick="kontrol_et({{ solution }})" class="btn kontrolet no-print">Kontrol
+        Et
+      </button>
+      <button type="button" onclick="save({{ size }}, {{ solution }})" class="btn kaydet no-print">Kaydet
+      </button>
+      <button type="button" onclick="cozumu_temizle()" class="btn temizle  no-print">Temizle</button>
+      <button type="button" onclick="cozumu_goster({{ solution }})" class="btn çözüm  no-print">Çözüm
+      </button>
+    </div>
+  </div>
+
+  <script>
+      const sudoku_yazdır = () => {
+          window.print();
+      };
+
+      function cozumu_temizle() {
+          let cells = document.getElementsByClassName('input_cell');
+          for (let i = 0; i < cells.length; i++) {
+              if (cells[i].style.color === 'red') {
+                  cells[i].value = '';
+                  cells[i].disabled = false;
+              }
+          }
+      }
+
+      const cozumu_goster = (solution) => {
+          let solution_1d = [].concat.apply([], solution);
+          const cells = document.getElementsByClassName('input_cell');
+          for (let i = 0; i < cells.length; i++) {
+              if (!cells[i].disabled) {
+                  cells[i].style.color = 'red';
+                  cells[i].disabled = true;
+                  cells[i].value = solution_1d[i]
+              }
+          }
+      };
+
+      const kontrol_et = (solution) => {
+          let solution_1d = [].concat.apply([], solution);
+          let is_success = true;
+          const cells = document.getElementsByClassName('input_cell');
+
+          let values = [];
+          for (let i = 0; i < solution_1d.length; i++) {
+              values.push(cells[i].value)
+          }
+
+          if (values.includes('')) {
+              swal("Hala boşluklar var ❗️️", "Boşlukları doldurup tekrar deneyiniz!", "warning", {
+                  button: "Tamamla",
+              });
+              return;
+          }
+
+          for (let i = 0; i < solution_1d.length; i++) {
+              let value;
+              let is_shape = false;
+
+              {% if sekilli_mi %} is_shape = true; {% endif %}
+
+              if (is_shape) {
+                  value = values[i];
+              } else {
+                  value = parseInt(values[i]);
+              }
+          
+              if (value !== solution_1d[i]) {
+                  is_success = false;
+                  break;
+              }
+          }
+
+          if (is_success) {
+              swal("Helal be sana! 😎", "Tüm sudokuyu doğru bir şekilde çözdün!", "success", {
+                  button: "Tamam",
+              });
+          } else {
+              swal("Üzgünüm 😔", "Hala hataların var, düzelt ve tekrar dene!", "error", {
+                  button: "Tekrar",
+              });
+          }
+      };
+
+      function getCookie(c_name) {
+          if (document.cookie.length > 0) {
+              c_start = document.cookie.indexOf(c_name + "=");
+              if (c_start !== -1) {
+                  c_start = c_start + c_name.length + 1;
+                  c_end = document.cookie.indexOf(";", c_start);
+                  if (c_end === -1) c_end = document.cookie.length;
+                  return unescape(document.cookie.substring(c_start, c_end));
+              }
+          }
+          return "";
+      }
+
+      const save = (size, solution) => {
+          const cells = document.getElementsByClassName('input_cell');
+          let solution_1d = [].concat.apply([], solution);
+          let game = [];
+          for (let i = 0; i < solution_1d.length; i++) {
+              game.push(cells[i].value)
+          }
+
+          const xhr = new XMLHttpRequest();
+
+          xhr.onload = () => {
+              if (xhr.readyState === 4 && xhr.status === 200) {
+                  swal("Başarılı", "Oyun başarılı bir şekilde kaydedilmiştir!", "success", {
+                      button: "Tekrar",
+                  });
+              } else {
+                  swal("Hata", "Oyun kaydedilemedi lütfen daha sonra tekrar deneyiniz!", "error", {
+                      button: "Tamam",
+                  });
+              }
+          };
+
+          let path = window.location.href;
+          let parts = path.split('/');
+
+          let last_part = parts[parts.length - 2];
+          let request_method = 'POST';
+          const url = '/sudoku/save_game/';
+          let json = {};
+
+          if (last_part === 'oyunlarim') {
+              request_method = 'PATCH';
+
+              json = {
+                  "id": parseInt(last_part),
+                  "game": game,
+              };
+
+          } else {
+              json = {
+                  "size": size,
+                  "game": game,
+                  "solution": solution_1d
+              };
+          }
+
+          xhr.open(request_method, url);
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.setRequestHeader('X-CSRFToken', getCookie("csrftoken"));
+          xhr.send(JSON.stringify(json));
+      };
+  </script>
+{% endblock content %}

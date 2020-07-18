@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png"
+        href="https://icons.iconarchive.com/icons/xenatt/minimalism/256/App-Sudoku-icon.png">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <title>
+    {% block title %}
+    {% endblock title %}
+  </title>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+  {% block ekstra_style %}
+  {% endblock ekstra_style %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="{% url 'index' %}">Sudoku</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarNav">
+    {% if user.is_authenticated %}
+      <ul class="navbar-nav">
+        <li class="nav-item {% if request.path == '/' %} active {% endif %}">
+          <a class="nav-link" href="{% url 'index' %}">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item {% if request.path == '/sudoku/oyunlarim/' %} active {% endif %}">
+          <a class="nav-link" href="{% url 'oyunlarim' %}">Oyunlarım</a>
+        </li>
+        <li class="nav-item {% if request.path == '/sudoku/dokuz/' %} active {% endif %}">
+          <a class="nav-link" href="{% url 'dokuz' %}">9x9 Sudoku</a>
+        </li>
+        <li class="nav-item {% if request.path == '/sudoku/alti/' %} active {% endif %}">
+          <a class="nav-link" href="{% url 'alti' %}">6x6 Sudoku</a>
+        </li>
+        <li class="nav-item {% if request.path == '/sudoku/dort/' %} active {% endif %}">
+          <a class="nav-link" href="{% url 'dort' %}">4x4 Sudoku</a>
+        </li>
+        <li class="nav-item {% if request.path == '/sudoku/sembollu_sudoku/' %} active {% endif %}">
+          <a class="nav-link" href="{% url 'sembollu_sudoku' %}">Sembollü Sudoku</a>
+        </li>
+      </ul>
+    {% endif %}
+
+    <ul class="nav navbar-nav ml-auto">
+      {% if user.is_authenticated %}
+        <li class="nav-item">
+          <b class="nav-link">{{ user.username }}</b>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'logout' %}">Çıkış Yap</a>
+        </li>
+      {% else %}
+        <li class="nav-item {% if request.path == '/accounts/login/' %} active {% endif %}">
+          <a class="nav-link" href="{% url 'login' %}">Giriş</a>
+        </li>
+        <li class="nav-item {% if request.path == '/accounts/register/' %} active {% endif %}">
+          <a class="nav-link" href="{% url 'register' %}">Üye Ol</a>
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+
+</nav>
+{% block content %}
+{% endblock content %}
+</body>
+</html>
